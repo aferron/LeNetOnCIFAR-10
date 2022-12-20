@@ -1,4 +1,5 @@
 from keras import backend as K
+from keras.datasets import cifar10
 from keras.utils import np_utils
 import matplotlib.pyplot as plt
 import numpy as np
@@ -52,7 +53,7 @@ class Experiment:
 
         opt = tf.keras.optimizers.SGD(lr=self.__learning_rate)
 
-        model = LeNet.build(option=self.__option, numChannels=3, imgRows=32, imgCols=32, numClasses=10, 
+        model = LeNet().build(option=self.__option, numChannels=3, imgRows=32, imgCols=32, numClasses=10, 
                         activation=self.__activation_function, weightsPath=self.__weights_path)
 
         model.compile(loss=self.__loss_function, optimizer=opt, metrics=["accuracy"])
@@ -77,15 +78,47 @@ class Experiment:
             if self.__save_model is True:
                     model.save_weights(self.__weights_path, overwrite=True)
 
-            self.__plot(history)
+            self.__plot(history, accuracy)
 
-    def __plot(self, history):
+    def __plot(self, history, accuracy):
         print(history.history.keys())
         epoch_range = np.arange(self.__epochs)
         plt.plot(epoch_range, history.history['accuracy'], scaley=False)
         plt.plot(epoch_range, history.history['val_accuracy'], scaley=False)
         plt.xlabel('Epochs\nLR: {}  Activation: {}  Loss: {} Epochs: {}  Accuracy: {:.4f}'.format(
-            self.__learning_rate, self.__activation_function, self.__loss_function, self.__epochs, self.__accuracy))
+            self.__learning_rate, self.__activation_function, self.__loss_function, self.__epochs, accuracy))
         plt.ylabel('Accuracy')
         plt.legend(['train', 'test'])
         plt.show()
+
+# learning rates are 0.1, 0.01, 0.001
+learning_rate = 0.01
+# activation function may be "sigmoid", "tanh", or "relu"
+activation_function = "tanh"
+# loss function may be  "mse" or "categorical_crossentropy"
+loss_function = "categorical_crossentropy"
+# not normalizing the data helps it keep from dying
+normalize = False
+# train for a sufficient number of epochs to see a low train loss
+epochs = 1
+# the batch size will stay the same
+batch_size = 32
+# optionally save and load a model from disk
+load_model = False
+weights_path = None
+save_model = False
+# which settings from the assignment to use
+section = 1
+
+Experiment(
+    learning_rate,
+    activation_function,
+    loss_function,
+    normalize,
+    epochs,
+    batch_size,
+    load_model,
+    weights_path,
+    save_model,
+    section
+).run()
